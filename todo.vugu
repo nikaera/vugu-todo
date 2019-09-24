@@ -1,0 +1,44 @@
+<div class="todo">
+    <input type="checkbox" name="done" @click="data.Done(event)">
+    <span :style='"text-decoration:" + data.TextStyle' vg-html='data.Date + " -> " + data.Text'></span>
+</div>
+
+<style>
+  .todo {
+    display: inline;
+  }
+</style>
+
+<script type="application/x-go">
+
+type TodoData struct {
+    Text string
+    Date string
+    TextStyle string
+}
+
+func (comp *Todo) NewData(props vugu.Props) (interface{}, error) {
+  ret := &TodoData{}
+  ret.Text, _ = props["text"].(string)
+  ret.Date, _ = props["date"].(string)
+  ret.TextStyle = "none"
+  return ret, nil
+}
+
+func (data *TodoData) Done(event *vugu.DOMEvent) {
+    ee := event.EventEnv()
+
+    go func() {
+        ee.Lock()
+        defer ee.UnlockRender()
+
+        done := event.JSEvent().Get("target").Get("checked").Bool()
+        if done {
+            data.TextStyle = "line-through"
+        } else {
+            data.TextStyle = "none"
+        }
+    }()
+}
+
+</script>

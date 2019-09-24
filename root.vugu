@@ -1,0 +1,50 @@
+<div class="my-first-vugu-comp">
+    <input type="text" id="todotext" size="30" maxlength="140" @change='data.InputTodo(event)'>
+    <button @click="data.AddTodo(event)">Add Todo</button>
+    <ul>
+        <li vg-for='data.Todos'>
+            <todo :date='value.Date' :text='value.Text'></todo>
+        </li>
+    </ul>
+</div>
+
+<script type="application/x-go">
+
+import (
+    "time"
+    "strconv"
+)
+
+type RootData struct {
+    TodoText string
+    Todos []TodoData
+}
+
+func (data *RootData) InputTodo(event *vugu.DOMEvent) {
+    data.TodoText = event.JSEvent().Get("target").Get("value").String()
+}
+
+func (data *RootData) AddTodo(event *vugu.DOMEvent) {
+    ee := event.EventEnv()
+
+    todos := []TodoData{}
+
+    if len(data.Todos) > 0 {
+        todos = make([]TodoData, len(data.Todos))
+	    copy(todos, data.Todos)
+    }
+
+    go func() {
+        ee.Lock()
+        defer ee.UnlockRender()
+
+        todo := TodoData{
+            Text: data.TodoText,
+            Date: strconv.FormatInt(time.Now().Unix(), 10),
+        }
+        todos = append(todos, todo)
+        data.Todos = todos
+    }()
+}
+
+</script>
