@@ -1,5 +1,5 @@
 <div class="my-first-vugu-comp">
-    <input type="text" id="todotext" size="30" maxlength="140" @change='data.InputTodo(event)'>
+    <input type="text" id="todotext" @change='data.InputTodo(event)'>
     <button @click="data.AddTodo(event)">Add Todo</button>
     <ul>
         <li vg-for='data.Todos'>
@@ -27,13 +27,6 @@ func (data *RootData) InputTodo(event *vugu.DOMEvent) {
 func (data *RootData) AddTodo(event *vugu.DOMEvent) {
     ee := event.EventEnv()
 
-    todos := []TodoData{}
-
-    if len(data.Todos) > 0 {
-        todos = make([]TodoData, len(data.Todos))
-	    copy(todos, data.Todos)
-    }
-
     go func() {
         ee.Lock()
         defer ee.UnlockRender()
@@ -42,8 +35,7 @@ func (data *RootData) AddTodo(event *vugu.DOMEvent) {
             Text: data.TodoText,
             Date: strconv.FormatInt(time.Now().Unix(), 10),
         }
-        todos = append(todos, todo)
-        data.Todos = todos
+        data.Todos = append(data.Todos, todo)
     }()
 }
 
